@@ -11,7 +11,7 @@ edition = "2021"
 tauri-build = { version = "1.5.3", features = [] }
 
 [dependencies]
-tauri = { version = "1.7.1", features = ["shell-open", "system-tray", "updater", "dialog"] }
+tauri = { version = "1.7.1", features = [ "updater", "shell-open", "system-tray", "dialog"] }
 
 # 序列化和反序列化依赖
 # serde 定义了数据序列化和反序列化的统一抽象标准，但没有具体的实现
