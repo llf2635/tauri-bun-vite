@@ -3,18 +3,16 @@
   "private": true,
   "version": "1.0.0",
   "type": "module",
-  "author": {
-    "name": "llf2635",
-    "email": "llf2635@163.com",
-    "url": "https://gitee.com/llf2635"
-  },
+  "description": "A project built with Bun",
+  "author": "Your Name <you@example.com>",
+  "license": "MIT",
   "scripts": {
-    "dev": "bun vite --mode dev",
-    "prod": "bun vite --mode prod",
-    "test": "bun vite --mode test",
-    "build": "bun vue-tsc && bun vite build",
+    "dev": "bun vite --mode .env.development",
+    "prod": "bun vite --mode .env.production",
+    "test": "bun vite --mode .env.test",
+    "build": "bun vue-tsc -b && bun vite build",
     "preview": "bun vite preview",
-    "tauri": "tauri",
+    "format": "prettier --write .",
     "preinstall": "echo '开始下载安装依赖包...'",
     "postinstall": "echo '依赖包下载完成...'"
   },
@@ -47,23 +45,26 @@
     "vite-plugin-svg-icons": "^2.0.1",
     "vue-tsc": "^2.0.22"
   },
-  "keywords": [
-    "vue",
-    "vite",
-    "vue-router",
-    "pinia",
-    "element-plus"
-  ],
-  "license": "MIT",
+  "engines": {
+    "bun": ">=1.1.20",
+    "node": ">=18.0.0"
+  },
   "repository": {
     "type": "git",
-    "url": "https://gitee.com/llf2635/tauri-rust-vite"
+    "url": "https://github.com/bunred/bun-vue3-ts.git"
   },
   "bugs": {
-    "url": "https://gitee.com/llf2635/tauri-rust-vite/issues"
+    "url": "https://github.com/bunred/bun-vue3-ts/issues"
   },
-  "homepage": "https://gitee.com/llf2635/tuari-rust-vite/blob/master/README.md",
-  "engines": {
-    "bun": ">=1.1.0"
-  }
+  "homepage": "https://github.com/bunred/bun-vue3-ts#readme",
+  "keywords": [
+    "vue3",
+    "typescript",
+    "bun"
+  ],
+  "browserslist": [
+    "> 0.5%",
+    "last 2 versions",
+    "not dead"
+  ]
 }
