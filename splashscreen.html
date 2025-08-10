@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>启动中...</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            color: white;
+        }
+
+        .container {
+            text-align: center;
+            animation: fadeIn 1s ease-in;
+        }
+
+        .logo {
+            width: 80px;
+            height: 80px;
+            margin-bottom: 20px;
+            animation: spin 2s linear infinite;
+        }
+
+        .title {
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            font-size: 16px;
+            opacity: 0.8;
+            margin-bottom: 30px;
+        }
+
+        .progress-container {
+            width: 200px;
+            height: 6px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 3px;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            height: 100%;
+            width: 0%;
+            background: white;
+            border-radius: 3px;
+            transition: width 0.3s ease;
+        }
+
+        .status {
+            margin-top: 15px;
+            font-size: 14px;
+            opacity: 0.7;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="logo">⚡</div>
+    <div class="title">应用名称</div>
+    <div class="subtitle">正在初始化...</div>
+    <div class="progress-container">
+        <div class="progress-bar" id="progressBar"></div>
+    </div>
+    <div class="status" id="statusText">准备启动</div>
+</div>
+
+<script>
+    // 接收来自 Rust 后端的进度更新
+    window.addEventListener('DOMContentLoaded', () => {
+        // 监听初始化进度事件
+        window.__TAURI__.event.listen('init-progress', (event) => {
+            const data = event.payload;
+            document.getElementById('progressBar').style.width = data.progress + '%';
+            document.getElementById('statusText').textContent = data.message;
+        });
+
+        // 监听初始化完成事件
+        window.__TAURI__.event.listen('init-complete', () => {
+            // 这里可以添加淡出动画
+            document.body.style.opacity = '0';
+            setTimeout(() => {
+                // 通知后端关闭启动窗口
+                window.__TAURI__.event.emit('close-splash');
+            }, 300);
+        });
+    });
+</script>
+</body>
+</html>

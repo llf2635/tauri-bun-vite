@@ -4,3 +4,4 @@
 fn main() {
     tauri_bun_vite_lib::run()
 }
+

@@ -6,7 +6,7 @@ import router from "@/router";
 // import '@/styles/main.scss'
 // UnoCSS 样式
 import 'virtual:uno.css'
-import '@unocss/reset/tailwind.css'
+// import '@unocss/reset/tailwind.css'
 import {createI18n} from "vue-i18n";
 
 
