@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">tauri-bun-vite</string>
+    <string name="main_activity_title">tauri-bun-vite</string>
+</resources>

@@ -1,0 +1,105 @@
+# docker-compose.yaml
+# PostgreSQL 主从复制 + HAProxy 读写分离
+# 架构：
+# - master: 主库，处理写操作
+# - replica: 从库，通过流复制同步数据，处理读操作
+# - haproxy: 路由请求：写 → master，读 → replica
+
+version: '3.8'
+
+# 定义服务
+services:
+
+  # ==================== 主数据库（Master）====================
+  master:
+    image: bitnami/postgresql:latest  # 使用 PostgreSQL 镜像
+    container_name: postgres-master
+    environment:
+      POSTGRES_DB: myapp          # 默认数据库名
+      POSTGRES_USER: admin        # 管理员用户名
+      POSTGRES_PASSWORD: pass123  # 管理员密码
+      POSTGRES_INITDB_ARGS: "--auth-host=scram-sha-256"  # 更安全的认证方式
+    volumes:
+      - ./data/master:/var/lib/postgresql/data  # 持久化数据
+      - ./init/master.sql:/docker-entrypoint-initdb.d/master.sql  # 初始化脚本（可选）
+    ports:
+      - "5432:5432"  # 主库端口映射（仅用于调试，生产建议通过 HAProxy 访问）
+    networks:
+      - pg-network
+    restart: unless-stopped
+    command: |
+      postgres -c "wal_level=replica" \
+               -c "max_wal_senders=3" \
+               -c "max_replication_slots=3" \
+               -c "hot_standby=on" \
+               -c "logging_collector=on" \
+               -c "log_destination=stderr" \
+               -c "log_line_prefix='%t [%p]: [%l-1] %c %x %d %u %a %h '" \
+               -c "log_statement=ddl"  # 启用 WAL 复制相关参数
+
+  # ==================== 从数据库（Replica）====================
+  replica:
+    image: bitnami/postgresql:latest
+    container_name: postgres-replica
+    environment:
+      POSTGRES_DB: myapp
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: pass123
+    volumes:
+      - ./data/replica:/var/lib/postgresql/data  # 持久化从库数据
+    depends_on:
+      - master  # 等待主库启动
+    networks:
+      - pg-network
+    restart: unless-stopped
+    # 使用初始化脚本配置从库复制
+    entrypoint: >
+      sh -c '
+        # 等待主库就绪
+        until pg_isready -h master -p 5432; do
+          echo "等待主库启动..."
+          sleep 2
+        done
+
+        # 如果从库数据目录为空，开始从主库同步
+        if [ ! -f /var/lib/postgresql/data/standby.signal ]; then
+          echo "从主库同步数据..."
+          # 使用 pg_basebackup 进行基础备份并配置为从库
+          pg_basebackup \
+            -h master \
+            -D /var/lib/postgresql/data \
+            -U replicator \
+            -v \
+            -P \
+            -R  # 自动生成 standby.signal 和 postgresql.auto.conf
+          # -R 会自动配置 primary_conninfo 和设置为热备模式
+        fi
+
+        # 启动 PostgreSQL
+        exec postgres
+      '
+
+  # ==================== HAProxy（读写分离）====================
+  haproxy:
+    image: bitnami/haproxy:latest
+    container_name: haproxy-pg
+    ports:
+      - "5000:5000"   # 外部写入口（写 → master）
+      - "5001:5001"   # 外部读入口（读 → replica）
+    volumes:
+      - ./haproxy/haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg  # 挂载配置文件
+    depends_on:
+      - master
+      - replica
+    networks:
+      - pg-network
+    restart: unless-stopped
+
+# ==================== 网络与卷 ====================
+networks:
+  pg-network:
+    driver: bridge  # 创建一个自定义桥接网络，便于容器间通信
+
+volumes:
+  master-data:   # 可选：使用命名卷（本例使用 bind mount）
+  replica-data:

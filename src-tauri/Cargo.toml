@@ -1,0 +1,40 @@
+[package]
+name = "tauri-bun-vite"
+version = "0.1.0"
+description = "A Tauri App"
+authors = ["you"]
+license = ""
+repository = ""
+default-run = "tauri-bun-vite"
+edition = "2021"
+rust-version = "1.57"
+
+# 查看更多键及其定义，请访问 https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[lib]
+# “_lib”后缀可能看起来多余，但却是必要的，使 lib 名称唯一且不会与 bin 名称冲突。
+# 这似乎只是 Windows 上的问题，请参阅 https://github.com/rust-lang/cargo/issues/8519
+name = "tauri_bun_vite_lib"
+crate-type = ["staticlib", "cdylib", "rlib"]
+
+[build-dependencies]
+tauri-build = { version = "2", features = [ "config-json5" ] }
+
+[dependencies]
+tauri = { version = "2", features = [  "config-json5" ] }
+tauri-plugin-opener = "2"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+
+# Tauri 应用程序大小， https://tauri.app/zh-cn/concept/size/
+# 虽然 Tauri 默认提供非常小的二进制文件，但稍微推一下极限也无妨，因此这里有一些技巧和建议，以达到最佳效果。
+[profile.dev]
+incremental = true # 以较小的步骤编译您的二进制文件。
+
+[profile.release]
+codegen-units = 1 # 允许 LLVM 执行更好的优化。
+lto = true # 启用链接时优化。
+# opt-level: 确定编译器的关注点。使用 3 来优化性能，使用 z 来优化大小，使用 s 以达到两者之间的平衡。
+opt-level = "s" # 优先考虑小的二进制文件大小。如果您更喜欢速度，请使用 `3`。
+panic = "abort" # 通过禁用 panic 处理程序来提高性能。
+strip = true # 确保移除调试符号。

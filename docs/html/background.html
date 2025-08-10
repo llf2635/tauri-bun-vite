@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+    <div class="background-box">
+        <div class="content theme-glass-light">
+            <p>Some content here</p>
+        </div>
+
+        <div class="content theme-glass-dark" style="margin-left: 20px;">
+            <p>Some content here</p>
+        </div>
+
+        <button class="theme-switch">切换主题</button>
+    </div>
+<script>
+    // 切换主题
+    const themeSwitch = document.querySelector('.theme-switch');
+    const glassLight = document.querySelector('.theme-glass-light');
+    const glassDark = document.querySelector('.theme-glass-dark');
+
+    themeSwitch.addEventListener('click', () => {
+        glassLight.classList.remove(".theme-glass-dark")
+        glassLight.classList.add(".theme-glass-dark")
+
+        glassLight.classList.remove(".theme-glass-light")
+        glassDark.classList.add(".theme-glass-light")
+    });
+</script>
+</body>
+<style>
+    * {
+        padding: 0;
+        margin: 0;
+        box-sizing: border-box;
+    }
+
+    body {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 100%;
+        height: 100vh;
+        overflow: hidden;
+        background-color: #f0f2f5;
+    }
+
+    .background-box {
+        position: relative; /* 创建新的定位上下文 */
+        width: 100%;
+        height: 100%;
+        overflow: hidden; /* 可选：防止内容溢出 */
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .background-box:before {
+        content: ''; /* 伪元素内容必须为空 */
+        position: absolute; /* 绝对定位 */
+        width: 100%;
+        height: 100%;
+        background-image: url('background.jpg'); /* 设置背景图片 */
+        background-size: cover; /* 或者 'contain'，根据需求 */
+        background-position: center; /* 图片居中 */
+        background-repeat: no-repeat; /* 不重复背景图片 */
+        filter: blur(90px); /* 调整模糊度，会模糊元素内容 */
+        z-index: -1; /* 确保伪元素在内容下方 */
+    }
+
+
+    .content {
+        width: 400px;
+        height: 300px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.3s ease-in-out;
+    }
+
+    .theme-glass-light {
+        /* 白色Glass */
+        background-color: rgba(255, 255, 255, 0.5);
+        backdrop-filter: blur(30px);
+        -webkit-backdrop-filter: blur(30px);
+        border: 1px solid rgba(255, 255, 255, 0.18);
+        box-shadow: rgba(142, 142, 142, 0.19) 0 6px 15px 0;
+        -webkit-box-shadow: rgba(142, 142, 142, 0.19) 0 6px 15px 0;
+        border-radius: 12px;
+        -webkit-border-radius: 12px;
+        color: rgb(128, 128, 128);
+    }
+
+    .theme-glass-dark {
+        /* 黑色Glass */
+        background-color: rgba(89, 89, 89, 0.5);
+        backdrop-filter: blur(30px);
+        -webkit-backdrop-filter: blur(30px);
+        border: 1px solid rgba(255, 255, 255, 0.18);
+        box-shadow: rgba(14, 14, 14, 0.19) 0 6px 15px 0;
+        -webkit-box-shadow: rgba(14, 14, 14, 0.19) 0 6px 15px 0;
+        border-radius: 12px;
+        -webkit-border-radius: 12px;
+        color: rgb(255, 255, 255);
+    }
+</style>
+</html>
+
+<!--
+:before 和 :after 是 CSS 中的伪元素，用于在元素内容之前或之后插入内容。
+它们都不需要在 HTML 中实际添加额外的标记，但它们在使用方式和目标上有所不同。以下是它们之间的主要区别和使用场景：
+
+:before 用于在元素内容之前插入内容，通常用于添加装饰性内容或提示。适合添加图标、装饰性内容、分隔符等。
+:after 用于在元素内容之后插入内容，常用于添加说明、版权信息或者其他补充信息。适合在元素内容之后添加补充信息，如清理浮动等。也用于添加小图标或指示状态。
+
+这两个伪元素都需要content 属性定义插入的内容，可以是文本、图像、或其他CSS内容（如计数）。
+
+元素内容指的是在 DOM 中，元素标签之间直接包含的文本或其他子元素。例如 上面的 background-box 元素内容为 <p> 标签
+*/
+
+
+/*
+z-index 是 CSS 中的一个属性，用于控制元素在 z 轴（垂直于屏幕的方向）上的堆叠顺序。简单来说，它决定了某个元素在页面上的前后位置。以下是 z-index 的一些重要特性和用法：
+1. 堆叠顺序
+    堆叠上下文：每个元素都有一个默认的堆叠上下文，通常由元素的 position 属性决定。只有当元素的 position 设置为 relative、absolute、fixed 或 sticky 时，z-index 才会生效。
+    层级关系：具有较高的 z-index 值的元素会覆盖具有较低值的元素。如果两个元素的 z-index 值相同，则根据它们在 HTML 中的出现顺序来判断堆叠顺序。
+
+z-index 用于控制元素的堆叠顺序，只有在元素设置了特定的 position 属性后才会生效。
+较高的 z-index 值会导致该元素覆盖较低值的元素，创建新的堆叠上下文也会影响堆叠的顺序。
+这种机制在创建复杂的网页布局时非常重要，特别是在需要重叠元素、模态框、工具提示等情况下。
+
+
+    元素的实际默认 z-index 是 auto，这意味着它不影响堆叠顺序。
+    如果元素未设置 position 属性或 z-index，它不会对其他元素的叠加顺序产生影响，除非在创建子堆叠上下文的情况下。
+
+
+-->

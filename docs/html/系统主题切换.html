@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en" theme-color="light">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Theme Switcher</title>
+        <style>
+            :root[theme-color="light"] {
+                --bg-color: #ffffff;
+                --text-color: #000000;
+            }
+
+            :root[theme-color="dark"] {
+                --bg-color: #000000;
+                --text-color: #ffffff;
+            }
+
+            body {
+                background-color: var(--bg-color);
+                color: var(--text-color);
+                transition:
+                    background-color 0.5s ease-in-out,
+                    color 0.5s ease-in-out;
+            }
+        </style>
+    </head>
+    <body>
+        <h1>主题切换示例</h1>
+        <button onclick="toggleTheme()">切换主题</button>
+
+        <script>
+            function toggleTheme() {
+                const root = document.documentElement;
+                const currentTheme = root.getAttribute("theme-color");
+                root.setAttribute(
+                    "theme-color",
+                    currentTheme === "light" ? "dark" : "light",
+                );
+            }
+        </script>
+    </body>
+</html>
+
+<!--
+theme-color="light" 代表默认的浅色主题，theme-color="dark" 代表默认的深色主题
+            // 使用 :root[theme-color="light"] 来设置浅色主题的样式
+            // 使用 :root[theme-color="dark"] 来设置深色主题的样式
+            // 所有元素的样式都使用 var() 来引用变量
+-->
