@@ -8,6 +8,7 @@ import router from "@/router";
 import 'virtual:uno.css'
 // import '@unocss/reset/tailwind.css'
 import {createI18n} from "vue-i18n";
+import {invoke} from "@tauri-apps/api/core";
 
 
 const i18n = createI18n({
@@ -35,3 +36,27 @@ app.config.errorHandler = (error) => {
     /* 处理错误 */
     console.log("the error is: " + error);
 };
+
+
+// 你现在应该会看到一个启动画面窗口弹出，前端和后端将各自执行耗时 3 秒的初始化任务，完成后启动画面会消失，并显示主窗口
+// 参考 https://tauri.app/zh-cn/learn/splashscreen/
+
+// 在 TypeScript 中实现的一个 sleep 函数
+function sleep(seconds: number): Promise<void> {
+    return new Promise(resolve => setTimeout(resolve, seconds * 1000));
+}
+
+// 设置函数
+async function setup() {
+    // 模拟执行一个很重的前端设置任务
+    console.log('Performing really heavy frontend setup task...')
+    await sleep(3);
+    console.log('Frontend setup task complete!')
+    // 设置前端任务为完成
+    invoke('set_complete', {task: 'frontend'})
+}
+
+// 实际上的 JavaScript main 函数
+window.addEventListener("DOMContentLoaded", () => {
+    setup()
+});

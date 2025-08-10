@@ -87,25 +87,25 @@
 </div>
 
 <script>
-    // 接收来自 Rust 后端的进度更新
-    window.addEventListener('DOMContentLoaded', () => {
-        // 监听初始化进度事件
-        window.__TAURI__.event.listen('init-progress', (event) => {
-            const data = event.payload;
-            document.getElementById('progressBar').style.width = data.progress + '%';
-            document.getElementById('statusText').textContent = data.message;
-        });
-
-        // 监听初始化完成事件
-        window.__TAURI__.event.listen('init-complete', () => {
-            // 这里可以添加淡出动画
-            document.body.style.opacity = '0';
-            setTimeout(() => {
-                // 通知后端关闭启动窗口
-                window.__TAURI__.event.emit('close-splash');
-            }, 300);
-        });
-    });
+    // // 接收来自 Rust 后端的进度更新
+    // window.addEventListener('DOMContentLoaded', () => {
+    //     // 监听初始化进度事件
+    //     window.__TAURI__.event.listen('init-progress', (event) => {
+    //         const data = event.payload;
+    //         document.getElementById('progressBar').style.width = data.progress + '%';
+    //         document.getElementById('statusText').textContent = data.message;
+    //     });
+    //
+    //     // 监听初始化完成事件
+    //     window.__TAURI__.event.listen('init-complete', () => {
+    //         // 这里可以添加淡出动画
+    //         document.body.style.opacity = '0';
+    //         setTimeout(() => {
+    //             // 通知后端关闭启动窗口
+    //             window.__TAURI__.event.emit('close-splash');
+    //         }, 3000);
+    //     });
+    // });
 </script>
 </body>
 </html>
