@@ -12,6 +12,7 @@ async function greet() {
 }
 
 // 对话框的使用参考 https://tauri.app/zh-cn/plugin/dialog/
+// https://v2.tauri.org.cn/reference/javascript/dialog/
 
 // 创建 Yes/No 中文为 是/否 对话框
 const answer_dialog = async () => {
