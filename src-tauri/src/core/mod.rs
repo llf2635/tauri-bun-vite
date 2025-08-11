@@ -1,3 +1,4 @@
+mod barcodescanner;
 mod nfc;
 mod splashscreen;
 pub mod tray;

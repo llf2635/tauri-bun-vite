@@ -8,6 +8,7 @@
     "main"
   ],
   "permissions": [
-    "nfc:default"
+    "nfc:default",
+    "barcode-scanner:default"
   ]
 }

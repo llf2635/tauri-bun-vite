@@ -122,7 +122,6 @@ pub fn run() {
                 core::updater::update(handle).await.unwrap();
             });
 
-
             #[cfg(desktop)]
             create_system_tray(app);
 
@@ -143,7 +142,6 @@ pub fn run() {
             // 添加 NFC 插件，允许您使用 Tauri 创建 NFC 标签。本机 NFC 标签，用于读取和写入 NFC 标签。
             // 在 Android 和 iOS 上读取和写入 NFC 标签
             // 详情请查看 https://v2.tauri.org.cn/plugin/nfc/
-
             #[cfg(mobile)]
             {
                 use tauri_plugin_nfc::NfcExt;
@@ -151,6 +149,10 @@ pub fn run() {
                 // 并非所有移动设备都具有扫描 NFC 标签的功能，因此在使用扫描和写入 API 之前，应检查其可用性
                 let can_scan_nfc = app.nfc().is_available()?;
             }
+            // 添加条形码扫描插件，允许您使用 Tauri 创建条形码扫描器。本机条形码扫描器，用于扫描条形码。
+            // 详情请查看 https://v2.tauri.org.cn/plugin/barcode-scanner/
+            #[cfg(mobile)]
+            app.handle().plugin(tauri_plugin_barcode_scanner::init());
 
             // 钩子期望一个 Ok 结果
             Ok(())
