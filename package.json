@@ -36,6 +36,7 @@
     "@tauri-apps/api": "^2",
     "@tauri-apps/plugin-dialog": "~2",
     "@tauri-apps/plugin-opener": "^2",
+    "@tauri-apps/plugin-updater": "~2",
     "axios": "^1.11.0",
     "echarts": "^6.0.0",
     "figlet": "^1.8.2",

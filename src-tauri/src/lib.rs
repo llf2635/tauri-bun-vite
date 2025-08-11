@@ -1,4 +1,3 @@
-
 //! # Tauri 应用核心库
 //!
 //! 这是一个 Tauri 桌面应用的核心功能库，提供配置管理、数据存储和系统集成等功能。
@@ -14,19 +13,18 @@
 //! ## 使用示例
 //!
 
-
 // --- 模块声明 ---
 pub mod commands;
 pub mod core;
 pub mod models;
 pub mod utils;
 
-use std::sync::Mutex;
-use tauri::{AppHandle, Manager, State};
-use tauri::async_runtime::spawn;
-use tokio::time::{sleep, Duration};
 #[cfg(desktop)]
 use crate::core::tray::create_system_tray;
+use std::sync::Mutex;
+use tauri::async_runtime::spawn;
+use tauri::{AppHandle, Manager, State};
+use tokio::time::{sleep, Duration};
 
 // 了解有关 Tauri 命令的更多信息，请访问 https://tauri.app/develop/calling-rust/
 #[tauri::command]
@@ -58,10 +56,14 @@ async fn set_complete(
         #[cfg(desktop)]
         {
             // 获取窗口并处理可能的错误
-            let splash_window = app.get_webview_window("splashscreen")
-                .ok_or("无法获取启动画面窗口".to_string()).unwrap();
-            let main_window = app.get_webview_window("main")
-                .ok_or("无法获取主窗口".to_string()).unwrap();
+            let splash_window = app
+                .get_webview_window("splashscreen")
+                .ok_or("无法获取启动画面窗口".to_string())
+                .unwrap();
+            let main_window = app
+                .get_webview_window("main")
+                .ok_or("无法获取主窗口".to_string())
+                .unwrap();
 
             // 关闭启动画面并显示主窗口
             let _ = splash_window.close();
@@ -85,7 +87,7 @@ async fn setup(app: AppHandle) -> Result<(), ()> {
         app.state::<Mutex<SetupState>>(),
         "backend".to_string(),
     )
-        .await?;
+    .await?;
     Ok(())
 }
 
@@ -123,6 +125,11 @@ pub fn run() {
             app.handle()
                 .plugin(tauri_plugin_single_instance::init(|_app, _args, _cwd| {}))
                 .expect("TODO: panic message");
+
+            // 添加更新插件，允许您检查更新并下载更新。使用更新服务器或静态 JSON 自动更新你的 Tauri 应用程序
+            // 详情请查看 https://v2.tauri.org.cn/plugin/updater/
+            #[cfg(desktop)]
+            app.handle().plugin(tauri_plugin_updater::Builder::new().build()).expect("TODO: panic message");
             // 钩子期望一个 Ok 结果
             Ok(())
         })
@@ -133,4 +140,3 @@ pub fn run() {
         .run(tauri::generate_context!())
         .expect("运行 Tauri 应用程序时出错");
 }
-

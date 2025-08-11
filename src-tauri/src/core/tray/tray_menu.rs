@@ -14,11 +14,11 @@
 //!
 
 #[cfg(desktop)]
-use tauri::{App, Wry};
-#[cfg(desktop)]
 use tauri::image::Image;
 #[cfg(desktop)]
 use tauri::menu::{CheckMenuItem, CheckMenuItemBuilder, IconMenuItem, Menu, SubmenuBuilder};
+#[cfg(desktop)]
+use tauri::{App, Wry};
 
 /// 创建系统托盘菜单
 /// 想要定义和操作系统托盘中的菜单，请阅读 https://v2.tauri.org.cn/learn/window-menu/

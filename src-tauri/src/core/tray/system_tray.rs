@@ -93,8 +93,6 @@ pub fn create_system_tray(app: &mut App) {
         .unwrap();
 }
 
-
-
 // fn handle_open_coco(app: &AppHandle) {
 //     println!("open menu item was clicked");
 //     if let Some(window) = app.get_webview_window("main") {

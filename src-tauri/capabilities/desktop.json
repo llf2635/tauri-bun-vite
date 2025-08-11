@@ -9,6 +9,7 @@
     "main"
   ],
   "permissions": [
-    "dialog:default"
+    "dialog:default",
+    "updater:default"
   ]
 }
