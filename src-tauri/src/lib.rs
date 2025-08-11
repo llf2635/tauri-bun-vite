@@ -116,11 +116,18 @@ pub fn run() {
             // 生成设置作为非阻塞任务，以便在执行时可以创建和运行窗口
             spawn(setup(app.handle().clone()));
 
+            // 添加一个异步任务，用于检查更新
+            let handle = app.handle().clone();
+            spawn(async move {
+                core::updater::update(handle).await.unwrap();
+            });
+
+
             #[cfg(desktop)]
             create_system_tray(app);
 
             // 添加一个单实例插件，用于防止多个实例运行。使用单实例插件确保 Tauri 应用程序在同一时间只运行单个实例
-            // 详情请查看 https://tauri.app/zh-cn/plugin/single-instance/
+            // 详情请查看 https://v2.tauri.org.cn/plugin/single-instance/
             #[cfg(desktop)]
             app.handle()
                 .plugin(tauri_plugin_single_instance::init(|_app, _args, _cwd| {}))
@@ -129,7 +136,22 @@ pub fn run() {
             // 添加更新插件，允许您检查更新并下载更新。使用更新服务器或静态 JSON 自动更新你的 Tauri 应用程序
             // 详情请查看 https://v2.tauri.org.cn/plugin/updater/
             #[cfg(desktop)]
-            app.handle().plugin(tauri_plugin_updater::Builder::new().build()).expect("TODO: panic message");
+            app.handle()
+                .plugin(tauri_plugin_updater::Builder::new().build())
+                .expect("TODO: panic message");
+
+            // 添加 NFC 插件，允许您使用 Tauri 创建 NFC 标签。本机 NFC 标签，用于读取和写入 NFC 标签。
+            // 在 Android 和 iOS 上读取和写入 NFC 标签
+            // 详情请查看 https://v2.tauri.org.cn/plugin/nfc/
+
+            #[cfg(mobile)]
+            {
+                use tauri_plugin_nfc::NfcExt;
+                app.handle().plugin(tauri_plugin_nfc::init());
+                // 并非所有移动设备都具有扫描 NFC 标签的功能，因此在使用扫描和写入 API 之前，应检查其可用性
+                let can_scan_nfc = app.nfc().is_available()?;
+            }
+
             // 钩子期望一个 Ok 结果
             Ok(())
         })

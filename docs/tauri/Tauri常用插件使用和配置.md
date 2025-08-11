@@ -42,6 +42,9 @@ export TAURI_SIGNING_PRIVATE_KEY_PASSWORD="lcqh2635"
     }
   }
 }
+
+# Tauri Action 为你生成一个静态 JSON 文件，以便在 GitHub Releases 等 CDN 上使用。
+# https://github.com/tauri-apps/tauri-action
 ```
 
 是 **使用 Bun 作为包管理器时** 安装 Tauri 更新插件的正确方式。

@@ -83,15 +83,21 @@
       "icons/icon.icns",
       "icons/icon.ico"
     ],
-    "plugins": {
-      "updater": {
-        "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IEYzMUVGRDMzRjlFQUQ4REIKUldUYjJPcjVNLzBlODdqYm1rb0pGTkR1VmR4MXB5ZFRyUHp1M01vYjZlTFRuY0hVbjNpOXdxbVYK",
-        "endpoints": [
-          "https://releases.myapp.com/{{target}}/{{arch}}/{{current_version}}",
-          // 或静态 github json 文件
-//          "https://github.com/user/repo/releases/latest/download/latest.json"
-        ]
-      }
-    }
   },
+  // Tauri 插件配置，https://v2.tauri.org.cn/reference/config/#plugins
+  "plugins": {
+    // 应用更新插件配置，https://v2.tauri.org.cn/plugin/updater/
+    "updater": {
+      // cat ~/.tauri/tauri-bun-vite.key.pub
+      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IEYzMUVGRDMzRjlFQUQ4REIKUldUYjJPcjVNLzBlODdqYm1rb0pGTkR1VmR4MXB5ZFRyUHp1M01vYjZlTFRuY0hVbjNpOXdxbVYK",
+      "endpoints": [
+        // {{target}}：操作系统名称（linux、windows 或 darwin 之一）。
+        // {{arch}}：机器架构（x86_64、i686、aarch64 或 armv7 之一）。
+        // {{current_version}}：请求更新的应用程序版本。
+        "https://releases.myapp.com/{{target}}/{{arch}}/{{current_version}}",
+        // 或静态 github json 文件
+//        "https://github.com/user/repo/releases/latest/download/latest.json"
+      ]
+    }
+  }
 }
