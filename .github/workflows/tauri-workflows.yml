@@ -1,10 +1,19 @@
+# .github/workflows/tauri.yml
+
 name: 'publish'
 
+# 触发条件：推送到 main 分支 或 创建 Release
 on:
   push:
+    # 当推送到 main 分支时触发
     branches:
-      - master
+      - main
+  # # 当创建 GitHub Release 时触发（推荐用于发布）
+  release:
+    types:
+      - published
 
+# 设置运行环境
 jobs:
   publish-tauri:
     # 添加输出定义
@@ -13,6 +22,7 @@ jobs:
 
     permissions:
       contents: write
+    # 定义构建矩阵：支持多个平台
     strategy:
       fail-fast: false
       matrix:
