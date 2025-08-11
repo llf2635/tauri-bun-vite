@@ -17,12 +17,15 @@
 // --- 模块声明 ---
 pub mod commands;
 pub mod core;
-pub mod utils;
 pub mod models;
+pub mod utils;
 
-use tauri::Manager;
-use tauri::menu::{Menu, MenuItem};
-use tauri::tray::{MouseButton, MouseButtonState, TrayIconBuilder, TrayIconEvent};
+use std::sync::Mutex;
+use tauri::async_runtime::spawn;
+use tauri::menu::{CheckMenuItem, CheckMenuItemBuilder, IconMenuItem, SubmenuBuilder};
+use tauri::tray::{MouseButton, MouseButtonState, TrayIconEvent};
+use tauri::{App, AppHandle, Emitter, Manager, State};
+use tokio::time::{sleep, Duration};
 
 // 了解有关 Tauri 命令的更多信息，请访问 https://tauri.app/develop/calling-rust/
 #[tauri::command]
@@ -30,64 +33,222 @@ fn greet(name: &str) -> String {
     format!("Hello, {}! You've been greeted from Rust!", name)
 }
 
+// 用于设置设置任务状态的自定义任务
+#[tauri::command]
+async fn set_complete(
+    app: AppHandle,
+    state: State<'_, Mutex<SetupState>>,
+    task: String,
+) -> Result<(), ()> {
+    // 在没有写入权限的情况下锁定状态
+    let mut state_lock = state.lock().unwrap();
+    match task.as_str() {
+        "frontend" => state_lock.frontend_task = true,
+        "backend" => state_lock.backend_task = true,
+        _ => panic!("invalid task completed!"),
+    }
+    // 检查两项任务是否已完成
+    if state_lock.backend_task && state_lock.frontend_task {
+        // 设置完成，我们可以关闭启动画面并取消隐藏主窗口！
+        let splash_window = app.get_webview_window("splashscreen").unwrap();
+        let main_window = app.get_webview_window("main").unwrap();
+        splash_window.close().unwrap();
+        main_window.show().unwrap();
+    }
+    Ok(())
+}
 
+// 执行一些繁重设置任务的异步函数
+async fn setup(app: AppHandle) -> Result<(), ()> {
+    // 假动作 3 秒
+    println!("Performing really heavy backend setup task...");
+    sleep(Duration::from_secs(3)).await;
+    println!("Backend setup task completed!");
+    // 将后端任务设置为已完成
+    // 命令可以作为常规函数运行，只要您自己处理输入参数
+    set_complete(
+        app.clone(),
+        app.state::<Mutex<SetupState>>(),
+        "backend".to_string(),
+    )
+        .await?;
+    Ok(())
+}
 
+// 创建一个结构，我们将用于跟踪设置相关任务的完成情况
+struct SetupState {
+    frontend_task: bool,
+    backend_task: bool,
+}
+
+// 我们在版本 2 移动兼容应用程序中的主要入口点
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
+    // 不要在 Tauri 启动之前编写代码，而是将其编写在设置钩子中！
     tauri::Builder::default()
-        // 配置系统托盘 https://tauri.app/zh-cn/learn/system-tray/
+        // 注册一个由 Tauri 管理的 “状态”
+        // 我们需要对它的写访问权限，因此我们将其包装在 “互斥体” 中
+        .manage(Mutex::new(SetupState {
+            frontend_task: false,
+            backend_task: false,
+        }))
+        // 添加一个命令，我们可以使用它来检查
+        .invoke_handler(tauri::generate_handler![greet, set_complete])
+        // 使用设置挂钩执行与设置相关的任务
+        // 在主循环之前运行，因此尚未创建任何窗口
         .setup(|app| {
-            let quit_i = MenuItem::with_id(app, "quit", "Quit", true, None::<&str>)?;
-            let menu = Menu::with_items(app, &[&quit_i])?;
-
-            let tray = TrayIconBuilder::new()
-                // 创建托盘时，您可以使用应用程序图标作为托盘图标
-                .icon(app.default_window_icon().unwrap().clone())
-                .tooltip("Tauri App")
-                .menu(&menu)
-                .show_menu_on_left_click(true)
-                // 监听菜单事件
-                .on_menu_event(|app, event| match event.id.as_ref() {
-                    "quit" => {
-                        println!("quit menu item was clicked");
-                        app.exit(0);
-                    }
-                    _ => {
-                        println!("menu item {:?} not handled", event.id);
-                    }
-                })
-                // 监听托盘事件
-                .on_tray_icon_event(|tray, event| match event {
-                    TrayIconEvent::Click {
-                        button: MouseButton::Left,
-                        button_state: MouseButtonState::Up,
-                        ..
-                    } => {
-                        println!("left click pressed and released");
-                        // 在这个例子中，当点击托盘图标时，将展示并聚焦于主窗口
-                        let app = tray.app_handle();
-                        if let Some(window) = app.get_webview_window("main") {
-                            let _ = window.unminimize();
-                            let _ = window.show();
-                            let _ = window.set_focus();
-                        }
-                    }
-                    _ => {
-                        println!("unhandled event {event:?}");
-                    }
-                })
-                .build(app)?;
-
+            create_system_tray(app);
+            // 生成设置作为非阻塞任务，以便在执行时可以创建和运行窗口
+            spawn(setup(app.handle().clone()));
+            // 钩子期望一个 Ok 结果
             Ok(())
         })
         .plugin(tauri_plugin_opener::init())
-        .invoke_handler(tauri::generate_handler![greet])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }
 
-
 /// 创建系统托盘菜单
-pub fn create_system_tray()  {
+/// 想要创建一个系统托盘图标，请阅读 https://v2.tauri.org.cn/learn/system-tray/
+/// 想要定义和操作系统托盘中的菜单，请阅读 https://v2.tauri.org.cn/learn/window-menu/
+pub fn create_system_tray(app: &mut App) {
+    use tauri::{
+        image::Image,
+        menu::{MenuBuilder, MenuItem},
+        tray::TrayIconBuilder,
+    };
 
+    // 定义具体菜单项
+
+    // 退出按钮
+    let quit_i = MenuItem::with_id(app, "quit", "退出 Coco", true, None::<&str>).unwrap();
+    // 设置按钮
+    let settings_i = MenuItem::with_id(app, "settings", "设置", true, None::<&str>).unwrap();
+    // 打开按钮
+    let open_i = MenuItem::with_id(app, "open", "打开 Coco", true, None::<&str>).unwrap();
+    // 关于按钮
+    let about_i = MenuItem::with_id(app, "about", "关于 Coco", true, None::<&str>).unwrap();
+    // 隐藏按钮
+    let hide_i = MenuItem::with_id(app, "hide", "隐藏 Coco", true, None::<&str>).unwrap();
+    // ......
+    let dashboard_i = MenuItem::with_id(app, "dashboard", "仪表盘", true, None::<&str>).unwrap();
+
+    // 从路径加载图标
+    let icon_image = Image::from_bytes(include_bytes!("../icons/icon.png")).unwrap();
+
+    // 创建具有子菜单的菜单项，参考 https://v2.tauri.org.cn/learn/window-menu/
+    let dashboard_submenu = SubmenuBuilder::new(app, "Dashboard")
+        .item(&dashboard_i)
+        .item(&settings_i)
+        .items(&[
+            &CheckMenuItem::new(app, "CheckMenuItem 1", true, true, None::<&str>).unwrap(),
+            &IconMenuItem::new(app, "IconMenuItem 2", true, Some(icon_image), None::<&str>).unwrap(),
+        ])
+        .build().expect("TODO: panic message");
+
+
+    // let icon_item = IconMenuItemBuilder::new("icon")
+    //     .icon(icon_image)
+    //     .build(app).unwrap();
+
+    let lang_str = app.config().identifier.clone();
+    let check_sub_item_1 = CheckMenuItemBuilder::new("English")
+        .id("en")
+        .checked(lang_str == "en")
+        .build(app).unwrap();
+    let check_sub_item_2 = CheckMenuItemBuilder::new("简体中文")
+        .id("en")
+        .checked(lang_str == "en")
+        .enabled(false)
+        .build(app).unwrap();
+    let other_item = SubmenuBuilder::new(app, "语言切换")
+        .item(&check_sub_item_1)
+        .item(&check_sub_item_2)
+        .build().unwrap();
+
+    // 按照一定顺序 把菜单项 MenuItem 放到菜单 Menu 里
+    let menu = MenuBuilder::new(app)
+        .item(&open_i)
+        .separator() // 分割线
+        .item(&hide_i)
+        .item(&about_i)
+        .item(&dashboard_submenu)
+        .item(&other_item)
+        .item(&settings_i)
+        .separator() // 分割线
+        .item(&quit_i)
+        .build()
+        .unwrap();
+
+    let _tray = TrayIconBuilder::with_id("tray")
+        .icon(app.default_window_icon().unwrap().clone()) // 默认的图片
+        // .icon(Image::from_bytes(include_bytes!("../icons/light@2x.png")).expect("REASON")) // 自定义的图片，需要给 tauri 添加 image-png 特性
+        // tooltip 为此托盘图标设置工具提示。但 linux 不支持使用此功能。
+        .tooltip("Tauri App")
+        .menu(&menu)
+        // 监听菜单事件，每一个配置的前缀为上面的 MenuItem 中的 id
+        .on_menu_event(|app, event| match event.id.as_ref() {
+            "open" => {
+                handle_open_coco(app); // 打开事件
+            }
+            "hide" => {
+                handle_hide_coco(app);
+            }
+            "about" => {
+                let _ = app.emit("open_settings", "about");
+            }
+            "settings" => {
+                // windows failed to open second window, issue: https://github.com/tauri-apps/tauri/issues/11144 https://github.com/tauri-apps/tauri/issues/8196
+                //#[cfg(windows)]
+                let _ = app.emit("open_settings", "");
+
+                // #[cfg(not(windows))]
+                // open_settings(&app);
+            }
+            "quit" => {
+                println!("quit menu item was clicked");
+                app.exit(0);
+            }
+            _ => {
+                println!("menu item {:?} not handled", event.id);
+            }
+        })
+        // 监听托盘事件
+        .on_tray_icon_event(|tray, event| match event {
+            TrayIconEvent::Click {
+                button: MouseButton::Left,
+                button_state: MouseButtonState::Up,
+                ..
+            } => {
+                println!("left click pressed and released");
+                // 在这个例子中，当点击托盘图标时，将展示并聚焦于主窗口
+                let app = tray.app_handle();
+                if let Some(window) = app.get_webview_window("main") {
+                    let _ = window.unminimize();
+                    let _ = window.show();
+                    let _ = window.set_focus();
+                }
+            }
+            _ => {
+                println!("unhandled event {event:?}");
+            }
+        })
+        .build(app)
+        .unwrap();
+}
+
+fn handle_open_coco(app: &tauri::AppHandle) {
+    println!("open menu item was clicked");
+    if let Some(window) = app.get_webview_window("main") {
+        let _ = window.unminimize();
+        let _ = window.show();
+        let _ = window.set_focus();
+    }
+}
+
+fn handle_hide_coco(app: &tauri::AppHandle) {
+    println!("hide menu item was clicked");
+    if let Some(window) = app.get_webview_window("main") {
+        let _ = window.hide();
+    }
 }

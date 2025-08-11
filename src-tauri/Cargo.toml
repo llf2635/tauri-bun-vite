@@ -24,7 +24,7 @@ tauri-build = { version = "2", features = [ "config-json5" ] }
 [dependencies]
 # Tauri 允许您为应用程序创建和自定义系统托盘。这可以通过提供对常用操作的快速访问来提升用户体验。
 # 详情请查看 https://tauri.app/zh-cn/learn/system-tray/
-tauri = { version = "2", features = [ "tray-icon", "config-json5" ] }
+tauri = { version = "2", features = [ "tray-icon", "image-png", "config-json5" ] }
 tauri-plugin-opener = "2"
 tokio = { version = "1.47.1", features = ["time"] }
 

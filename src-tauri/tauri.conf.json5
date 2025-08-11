@@ -9,7 +9,7 @@
   // 反向域名表示法的应用程序标识符 （e.g. com.tauri.example）。
   // 此字符串在应用程序中必须是唯一的，因为它用于系统配置，例如捆绑包 ID 和 webview 数据目录的路径。此字符串只能包含字母数字字符（A-Z、a-z 和 0-9）、连字符 （-） 和句点 （.）。。
   "identifier": "com.lcqh.tauri-bun-vite",
-  // Tauri 构建配置，https://tauri.app/zh-cn/reference/config/#build
+  // Tauri 构建配置，https://v2.tauri.org.cn/reference/config/#build
   "build": {
     // 在 bun run tauri dev 启动之前运行的 shell 命令
     "beforeDevCommand": "bun run dev",
@@ -22,28 +22,32 @@
     // 该 URL 可以是在 tauri 应用程序中注册的自定义协议（例如：myprotocol://）或远程 URL（例如：https://site.com/app）。
     "frontendDist": "../dist"
   },
-  // Tauri 应用 APP 配置，https://tauri.app/zh-cn/reference/config/#app
+  // Tauri 应用 APP 配置，https://v2.tauri.org.cn/reference/config/#app
   "app": {
-    // 应用窗口配置。https://tauri.app/zh-cn/reference/config/#windows
+    // 应用窗口配置。https://v2.tauri.org.cn/reference/config/#windows
     "windows": [
       // 你现在应该会看到一个启动画面窗口弹出，前端和后端将各自执行耗时一定时间的初始化任务，完成后启动画面会消失，并显示主窗口！
       {
         "label": "main",
-//        "visible": false,
-        // 窗口标题。默认值：“Tauri App”
-        "title": "tauri-bun-vite",
-        "width": 800,
-        "height": 600,
-        // 窗口是否居中开始
-        "center": true,
+        "visible": false,
+//        // 窗口标题。默认值：“Tauri App”
+//        "title": "tauri-bun-vite",
+//        "width": 800,
+//        "height": 600,
+//        // 窗口是否居中开始
+//        "center": true,
+      },
+      {
+        "label": "splashscreen",
+        "url": "/splashscreen"
       }
     ],
-    // 应用安全配置。https://tauri.app/zh-cn/reference/config/#security
+    // 应用安全配置。https://v2.tauri.org.cn/reference/config/#security
     "security": {
       "csp": null
     }
   },
-  // Tauri 捆绑包配置，https://tauri.app/zh-cn/reference/config/#bundle
+  // Tauri 捆绑包配置，https://v2.tauri.org.cn/reference/config/#bundle
   "bundle": {
     // Tauri 是应该捆绑您的应用程序还是仅输出可执行文件。
     "active": true,
@@ -84,5 +88,5 @@
     //        ],
     //      },
     //    }
-  }
+  },
 }
