@@ -87,25 +87,29 @@
 </div>
 
 <script>
-    // // 接收来自 Rust 后端的进度更新
-    // window.addEventListener('DOMContentLoaded', () => {
-    //     // 监听初始化进度事件
-    //     window.__TAURI__.event.listen('init-progress', (event) => {
-    //         const data = event.payload;
-    //         document.getElementById('progressBar').style.width = data.progress + '%';
-    //         document.getElementById('statusText').textContent = data.message;
-    //     });
-    //
-    //     // 监听初始化完成事件
-    //     window.__TAURI__.event.listen('init-complete', () => {
-    //         // 这里可以添加淡出动画
-    //         document.body.style.opacity = '0';
-    //         setTimeout(() => {
-    //             // 通知后端关闭启动窗口
-    //             window.__TAURI__.event.emit('close-splash');
-    //         }, 3000);
-    //     });
-    // });
+    // 在主应用的前端代码中
+    import { invoke } from '@tauri-apps/api/core';
+
+    // 通知后端前端已准备就绪
+    document.addEventListener('DOMContentLoaded', async () => {
+        try {
+            // 执行前端初始化任务
+            await initializeFrontend();
+
+            // 通知后端前端初始化完成
+            await invoke('set_complete', { task: 'frontend' });
+        } catch (error) {
+            console.error('前端初始化失败:', error);
+        }
+    });
+
+    async function initializeFrontend() {
+        // 在这里执行前端初始化任务
+        // 例如加载数据、初始化组件等
+        return new Promise(resolve => {
+            setTimeout(resolve, 3000); // 模拟初始化过程
+        });
+    }
 </script>
 </body>
 </html>

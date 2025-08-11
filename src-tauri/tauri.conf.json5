@@ -28,19 +28,23 @@
     "windows": [
       // 你现在应该会看到一个启动画面窗口弹出，前端和后端将各自执行耗时一定时间的初始化任务，完成后启动画面会消失，并显示主窗口！
       {
-        "label": "main",
-        "visible": false,
-        // 窗口标题。默认值：“Tauri App”
-        "title": "tauri-bun-vite",
-        "width": 800,
-        "height": 600,
-        // 窗口是否居中开始
-        "center": true,
+        "label": "splashscreen",
+        "title": "Loading...",
+        // decorations 用于控制是否使用系统自带的 title bar 边框
+        "decorations": false,
+        "url": "splashscreen.html"
       },
       {
-        "label": "splashscreen",
-        "url": "/splashscreen"
-      }
+        "label": "main",
+        // 窗口标题。默认值：“Tauri App”
+        "title": "tauri-bun-vite",
+        "width": 1000,
+        "height": 700,
+        // 窗口是否居中开始
+        "center": true,
+        "visible": false,
+        "url": "index.html"
+      },
     ],
     // 应用安全配置。https://v2.tauri.org.cn/reference/config/#security
     "security": {
