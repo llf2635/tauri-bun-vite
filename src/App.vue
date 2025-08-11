@@ -9,6 +9,18 @@ async function greet() {
   // Learn more about Tauri commands at https://tauri.app/develop/calling-rust/
   greetMsg.value = await invoke("greet", { name: name.value });
 }
+
+import { ask } from '@tauri-apps/plugin-dialog';
+
+// 创建 Yes/No 对话框
+const answer = await ask('This action cannot be reverted. Are you sure?', {
+  title: 'Tauri',
+  kind: 'warning',
+});
+
+console.log(answer);
+// Prints boolean to the console
+
 </script>
 
 <template>

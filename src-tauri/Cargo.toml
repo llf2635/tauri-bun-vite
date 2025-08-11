@@ -30,6 +30,7 @@ tokio = { version = "1.47.1", features = ["time"] }
 
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
+tauri-plugin-dialog = "2"
 
 
 # Tauri 应用程序大小， https://tauri.app/zh-cn/concept/size/
@@ -41,6 +42,9 @@ incremental = true # 以较小的步骤编译您的二进制文件。
 codegen-units = 1 # 允许 LLVM 执行更好的优化。
 lto = true # 启用链接时优化。
 # opt-level: 确定编译器的关注点。使用 3 来优化性能，使用 z 来优化大小，使用 s 以达到两者之间的平衡。
-opt-level = "s" # 优先考虑小的二进制文件大小。如果您更喜欢速度，请使用 `3`。
+opt-level = 3 # 优先考虑小的二进制文件大小。如果您更喜欢速度，请使用 `3`。
 panic = "abort" # 通过禁用 panic 处理程序来提高性能。
 strip = true # 确保移除调试符号。
+
+[target.'cfg(not(any(target_os = "android", target_os = "ios")))'.dependencies]
+tauri-plugin-single-instance = "2"
