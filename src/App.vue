@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref } from "vue";
 import { invoke } from "@tauri-apps/api/core";
+import {ask, confirm, message, open, save} from '@tauri-apps/plugin-dialog';
 
 const greetMsg = ref("");
 const name = ref("");
@@ -10,11 +11,12 @@ async function greet() {
   greetMsg.value = await invoke("greet", { name: name.value });
 }
 
-import { ask } from '@tauri-apps/plugin-dialog';
+// 对话框的使用参考 https://tauri.app/zh-cn/plugin/dialog/
 
+// 创建 Yes/No 中文为 是/否 对话框
 const answer_dialog = async () => {
   // 创建 Yes/No 对话框
-  const answer = await ask('This action cannot be reverted. Are you sure?', {
+  const answer = await ask('此作无法恢复。是否确定?', {
     title: 'Tauri',
     kind: 'warning',
   });
@@ -27,6 +29,56 @@ const answer_dialog = async () => {
     alert('You clicked Yes!');
   }
 }
+
+// 创建 Ok/Cancel 中文为 取消/确定 对话框
+async function confirmation_dialog() {
+// 创建确认确定/取消对话框
+  const confirmation = await confirm(
+      '此作无法恢复。是否确定?',
+      { title: 'Tauri', kind: 'warning' }
+  );
+
+  // 将布尔值打印到控制台
+  console.log(confirmation);
+}
+
+// 创建 Message 对话框
+async function message_dialog() {
+  // 显示消息
+  await message('此作无法恢复。是否确定?', { title: 'Tauri', kind: 'info' });
+  await message('找不到文件', { title: 'Tauri', kind: 'error' });
+  await message('此作无法恢复。是否确定?', { title: 'Tauri', kind: 'warning' });
+}
+
+// 打开一个文件选择对话框
+async function open_file_dialog() {
+// Open a dialog
+  const file = await open({
+    multiple: false,
+    directory: false,
+  });
+
+  // 将文件路径和名称打印到控制台
+  console.log(file);
+}
+
+// 保存到文件对话框
+async function save_file_dialog() {
+// 提示保存带有扩展名 .png 或 .jpeg 的 “我的过滤器”
+  const path = await save({
+    filters: [
+      {
+        name: 'My Filter',
+        extensions: ['png', 'jpeg'],
+      },
+    ],
+  });
+
+  // 打印所选路径
+  console.log(path);
+}
+
+
 
 // 你现在应该会看到一个启动画面窗口弹出，前端和后端将各自执行耗时 3 秒的初始化任务，完成后启动画面会消失，并显示主窗口
 // 参考 https://v2.tauri.org.cn/learn/splashscreen/
@@ -81,7 +133,13 @@ onMounted(async () => {
     </form>
     <p>{{ greetMsg }}</p>
 
-    <button @click="answer_dialog" class="mt-3 w-4">创建 Yes/No 对话框</button>
+    <div class="grid grid-cols-4 gap-3">
+      <button @click="answer_dialog" class="mt-3 w-4">创建 Yes/No 对话框</button>
+      <button @click="confirmation_dialog" class="mt-3 w-4">创建 Ok/Cancel 对话框</button>
+      <button @click="message_dialog" class="mt-3 w-4">创建 Message 对话框</button>
+      <button @click="open_file_dialog" class="mt-3 w-4">打开一个文件选择对话框</button>
+      <button @click="save_file_dialog" class="mt-3 w-4">保存到文件对话框</button>
+    </div>
   </main>
 </template>
 

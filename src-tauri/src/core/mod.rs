@@ -1,2 +1,2 @@
-mod tray;
+pub mod tray;
 mod splashscreen;

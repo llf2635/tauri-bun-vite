@@ -25,6 +25,8 @@ use std::sync::Mutex;
 use tauri::{AppHandle, Manager, State};
 use tauri::async_runtime::spawn;
 use tokio::time::{sleep, Duration};
+#[cfg(desktop)]
+use crate::core::tray::create_system_tray;
 
 // 了解有关 Tauri 命令的更多信息，请访问 https://tauri.app/develop/calling-rust/
 #[tauri::command]
@@ -111,6 +113,9 @@ pub fn run() {
         .setup(|app| {
             // 生成设置作为非阻塞任务，以便在执行时可以创建和运行窗口
             spawn(setup(app.handle().clone()));
+
+            #[cfg(desktop)]
+            create_system_tray(app);
 
             // 添加一个单实例插件，用于防止多个实例运行。使用单实例插件确保 Tauri 应用程序在同一时间只运行单个实例
             // 详情请查看 https://tauri.app/zh-cn/plugin/single-instance/
