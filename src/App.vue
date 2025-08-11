@@ -28,6 +28,34 @@ const answer_dialog = async () => {
   }
 }
 
+// 你现在应该会看到一个启动画面窗口弹出，前端和后端将各自执行耗时 3 秒的初始化任务，完成后启动画面会消失，并显示主窗口
+// 参考 https://v2.tauri.org.cn/learn/splashscreen/
+
+// 在 TypeScript 中实现的一个 sleep 函数
+// Promise 是 JavaScript 中用于处理异步操作的一种核心机制，它的出现极大地改善了过去“回调地狱”（Callback Hell）的问题，使异步代码更清晰、可读、易于管理。
+// 这样就可以使用 .then、.catch、.finally 等方法来处理异步操作的结果。
+const sleep = (seconds: number): Promise<void> => {
+  return new Promise(resolve => {
+    console.log('使用 setTimeout 模拟执行一个很重的前端设置任务...');
+    setTimeout(resolve, seconds * 1000);
+  });
+};
+
+// 设置函数
+async function setup() {
+  // 模拟执行一个很重的前端设置任务
+  console.log('执行非常繁重的前端设置任务...')
+  await sleep(3);
+  console.log('前端设置任务完成!')
+  // 设置前端任务为完成
+  await invoke('set_complete', {task: 'frontend'})
+}
+
+onMounted(async () => {
+  // 组件的模板已经被渲染到 DOM 中
+  console.log('组件已挂载，DOM 可访问')
+  await setup()
+})
 </script>
 
 <template>
@@ -53,7 +81,7 @@ const answer_dialog = async () => {
     </form>
     <p>{{ greetMsg }}</p>
 
-    <button @click="answer_dialog">创建 Yes/No 对话框</button>
+    <button @click="answer_dialog" class="mt-3 w-4">创建 Yes/No 对话框</button>
   </main>
 </template>
 

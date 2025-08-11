@@ -29,7 +29,7 @@
       // 你现在应该会看到一个启动画面窗口弹出，前端和后端将各自执行耗时一定时间的初始化任务，完成后启动画面会消失，并显示主窗口！
       {
         "label": "main",
-        "visible": true,
+        "visible": false,
         // 窗口标题。默认值：“Tauri App”
         "title": "tauri-bun-vite",
         "width": 800,

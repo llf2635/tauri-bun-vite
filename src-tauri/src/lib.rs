@@ -50,8 +50,10 @@ async fn set_complete(
         "backend" => state_lock.backend_task = true,
         _ => panic!("已完成无效任务!"),
     }
+    println!("设置任务 {} 已完成!", task);
     // 检查两项任务是否已完成
     if state_lock.backend_task && state_lock.frontend_task {
+        println!("所有设置任务已完成!");
         // 设置完成，我们可以关闭启动画面并取消隐藏主窗口！
         let splash_window = app.get_webview_window("splashscreen").unwrap();
         let main_window = app.get_webview_window("main").unwrap();
