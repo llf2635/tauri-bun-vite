@@ -24,7 +24,7 @@ use std::sync::Mutex;
 use tauri::async_runtime::spawn;
 use tauri::image::Image;
 use tauri::menu::{
-    CheckMenuItem, CheckMenuItemBuilder, IconMenuItem, Menu, MenuBuilder, MenuItem, SubmenuBuilder,
+    CheckMenuItem, CheckMenuItemBuilder, IconMenuItem, Menu, SubmenuBuilder,
 };
 use tauri::tray::{MouseButton, MouseButtonState, TrayIconEvent};
 use tauri::{App, AppHandle, Emitter, Manager, State, Wry};
@@ -260,7 +260,7 @@ pub fn create_tray_menu(app: &mut App) -> Menu<Wry> {
     menu
 }
 
-fn handle_open_coco(app: &tauri::AppHandle) {
+fn handle_open_coco(app: &AppHandle) {
     println!("open menu item was clicked");
     if let Some(window) = app.get_webview_window("main") {
         let _ = window.unminimize();
@@ -269,7 +269,7 @@ fn handle_open_coco(app: &tauri::AppHandle) {
     }
 }
 
-fn handle_hide_coco(app: &tauri::AppHandle) {
+fn handle_hide_coco(app: &AppHandle) {
     println!("hide menu item was clicked");
     if let Some(window) = app.get_webview_window("main") {
         let _ = window.hide();

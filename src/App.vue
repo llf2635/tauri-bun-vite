@@ -12,14 +12,21 @@ async function greet() {
 
 import { ask } from '@tauri-apps/plugin-dialog';
 
-// 创建 Yes/No 对话框
-const answer = await ask('This action cannot be reverted. Are you sure?', {
-  title: 'Tauri',
-  kind: 'warning',
-});
+const answer_dialog = async () => {
+  // 创建 Yes/No 对话框
+  const answer = await ask('This action cannot be reverted. Are you sure?', {
+    title: 'Tauri',
+    kind: 'warning',
+  });
 
-console.log(answer);
-// Prints boolean to the console
+  // 将布尔值打印到控制台
+  console.log(answer);
+
+  if (answer) {
+    // 根据用户的选择执行不同的操作
+    alert('You clicked Yes!');
+  }
+}
 
 </script>
 
@@ -45,6 +52,8 @@ console.log(answer);
       <button type="submit">Greet</button>
     </form>
     <p>{{ greetMsg }}</p>
+
+    <button @click="answer_dialog">创建 Yes/No 对话框</button>
   </main>
 </template>
 
