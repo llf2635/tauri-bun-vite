@@ -21,13 +21,11 @@ pub mod models;
 pub mod utils;
 
 use std::sync::Mutex;
+use tauri::{App, AppHandle, Emitter, Manager, State, Wry};
 use tauri::async_runtime::spawn;
 use tauri::image::Image;
-use tauri::menu::{
-    CheckMenuItem, CheckMenuItemBuilder, IconMenuItem, Menu, SubmenuBuilder,
-};
-use tauri::tray::{MouseButton, MouseButtonState, TrayIconEvent};
-use tauri::{App, AppHandle, Emitter, Manager, State, Wry};
+use tauri::menu::{CheckMenuItem, CheckMenuItemBuilder, IconMenuItem, Menu, SubmenuBuilder};
+use tauri::tray::{MouseButton, MouseButtonState, TrayIconBuilder, TrayIconEvent};
 use tokio::time::{sleep, Duration};
 
 // 了解有关 Tauri 命令的更多信息，请访问 https://tauri.app/develop/calling-rust/
@@ -126,8 +124,6 @@ pub fn run() {
 /// 创建系统托盘
 /// 想要创建一个系统托盘，请阅读 https://v2.tauri.org.cn/learn/system-tray/
 pub fn create_system_tray(app: &mut App) {
-    use tauri::tray::TrayIconBuilder;
-
     // 创建托盘菜单，调用下面的方法
     let menu = create_tray_menu(app);
 
@@ -140,10 +136,14 @@ pub fn create_system_tray(app: &mut App) {
         // 监听菜单事件，每一个配置的前缀为上面的 MenuItem 中的 id
         .on_menu_event(|app, event| match event.id.as_ref() {
             "open" => {
-                handle_open_coco(app); // 打开事件
+                // 打开事件
+                println!("open menu item was clicked");
+                // handle_open_coco(app);
             }
             "hide" => {
-                handle_hide_coco(app);
+                // 隐藏事件
+                println!("hide menu item was clicked");
+                // handle_hide_coco(app);
             }
             "about" => {
                 let _ = app.emit("open_settings", "about");
@@ -262,18 +262,18 @@ pub fn create_tray_menu(app: &mut App) -> Menu<Wry> {
     menu
 }
 
-fn handle_open_coco(app: &AppHandle) {
-    println!("open menu item was clicked");
-    if let Some(window) = app.get_webview_window("main") {
-        let _ = window.unminimize();
-        let _ = window.show();
-        let _ = window.set_focus();
-    }
-}
-
-fn handle_hide_coco(app: &AppHandle) {
-    println!("hide menu item was clicked");
-    if let Some(window) = app.get_webview_window("main") {
-        let _ = window.hide();
-    }
-}
+// fn handle_open_coco(app: &AppHandle) {
+//     println!("open menu item was clicked");
+//     if let Some(window) = app.get_webview_window("main") {
+//         let _ = window.unminimize();
+//         let _ = window.show();
+//         let _ = window.set_focus();
+//     }
+// }
+//
+// fn handle_hide_coco(app: &AppHandle) {
+//     println!("hide menu item was clicked");
+//     if let Some(window) = app.get_webview_window("main") {
+//         let _ = window.hide();
+//     }
+// }

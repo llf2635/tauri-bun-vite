@@ -24,22 +24,16 @@ app.use(pinia)
 // 注册路由
 app.use(router)
 
-app.mount('#app')
-
-
-
-
-
 // 等待路由准备就绪后再挂载应用
-// router.isReady().then(() => {
-//     // 路由初始化完成后挂载Vue根实例
-//     app.mount('#app')
-// })
+router.isReady().then(() => {
+    // 路由初始化完成后挂载Vue根实例
+    app.mount('#app')
+})
 
 // 应用级错误处理 可以用来向追踪服务报告错误
-// app.config.errorHandler = (error) => {
-//     /* 处理错误 */
-//     console.log("the error is: " + error);
-// };
+app.config.errorHandler = (error) => {
+    /* 处理错误 */
+    console.log("the error is: " + error);
+};
 
 

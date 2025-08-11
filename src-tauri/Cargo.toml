@@ -39,7 +39,7 @@ tauri-plugin-dialog = "2"
 incremental = true # 以较小的步骤编译您的二进制文件。
 
 [profile.release]
-codegen-units = 1 # 允许 LLVM 执行更好的优化。
+codegen-units = 1 # 允许 LLVM 执行更好地优化。
 lto = true # 启用链接时优化。
 # opt-level: 确定编译器的关注点。使用 3 来优化性能，使用 z 来优化大小，使用 s 以达到两者之间的平衡。
 opt-level = 3 # 优先考虑小的二进制文件大小。如果您更喜欢速度，请使用 `3`。
